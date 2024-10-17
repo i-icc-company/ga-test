@@ -8,7 +8,7 @@ on:
     tags:
       - '*'
     paths-ignore:
-      - 'infrastructure/kubernetes/deploy-manifest/**'
+      - 'gen/**'
 
 jobs:
   kustomize_build:
@@ -43,7 +43,7 @@ jobs:
           fi
 
       - name: edit file
-        run: uuidgen > test.log
+        run: uuidgen > gen/test.log
           
 
       - name: Add commit and push if changes
