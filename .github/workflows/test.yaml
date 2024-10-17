@@ -1,0 +1,61 @@
+name: Build manifest file
+
+on:
+  push:
+    branches:
+      - develop
+      - feature/test* # テスト用 確認できたら消す！
+    tags:
+      - '*'
+    paths-ignore:
+      - 'infrastructure/kubernetes/deploy-manifest/**'
+
+jobs:
+  kustomize_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        id: gt
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.SEACRET }}
+
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: 'develop'
+          token: ${{ steps.gt.outputs.token }}
+
+      - name: Set environment based on branch
+        run: | 
+          echo "ENV_TYPE=stg" >> $GITHUB_ENV
+          echo "TAG=_stg" >> $GITHUB_ENV
+          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "ENV_TYPE=stg" >> $GITHUB_ENV
+            echo "TAG=_stg" >> $GITHUB_ENV
+          fi
+
+          if [[ "${{ github.ref }}" =~ ^refs/tags/ ]]; then
+            echo "ENV_TYPE=prod" >> $GITHUB_ENV
+            echo "TAG=_${{ github.ref_name }}" >> $GITHUB_ENV
+          fi
+
+      - name: edit file
+        run: uuidgen > test.log
+          
+
+      - name: Add commit and push if changes
+        run: |
+          if [[ $(git status -s) != '' ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "edit from ga"
+            git push origin HEAD
+          else
+            echo "No changes"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ steps.gt.outputs.token }}
