@@ -44,19 +44,23 @@ jobs:
 
       - name: edit file
         run: uuidgen > gen/test.log
-          
 
-      - name: Add commit and push if changes
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.gt.outputs.token }}
+          branch: 'feature/test'
+          title: 'generate manifest file'
+          body: 'This is an generate manifest file pull request.'
+          draft: false
+          delete-branch: true
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+
+      - name: Merge the pull request (if exists)
         run: |
-          if [[ $(git status -s) != '' ]]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add .
-            git commit -m "edit from ga"
-            sleep 90 # status check が終わるのを待つ
-            git push origin HEAD
-          else
-            echo "No changes"
+          if [ "${{ steps.cpr.outputs.pull-request-number }}" != "" ]; then
+            gh pr merge "${{ steps.cpr.outputs.pull-request-number }}" --merge --auto
           fi
         env:
           GITHUB_TOKEN: ${{ steps.gt.outputs.token }}
