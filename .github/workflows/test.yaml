@@ -11,6 +11,19 @@ on:
       - 'gen/**'
 
 jobs:
+  check1:
+    runs-on: ubuntu-latest
+    steps:
+      - name: dummy test1
+        run: exit 0
+
+  check2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: dummy test2
+        run: exit 0
+    
+
   kustomize_build:
     runs-on: ubuntu-latest
     steps:
@@ -44,8 +57,8 @@ jobs:
 
       - name: edit file
         run: uuidgen > gen/test.log
-          
 
+      
       - name: Add commit and push if changes
         run: |
           if [[ $(git status -s) != '' ]]; then
@@ -53,24 +66,6 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add .
             git commit -m "edit from ga"
-
-            while true; do
-              check_runs=$(curl --location --request GET 'https://api.github.com/repos/i-icc-company/ga-test/commits/develop/check-runs' \
-              --header 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
-              --header 'Accept: application/vnd.github.v3+json')
-              check1=$(echo $check_runs | jq -r '.check_runs[] | select(.name == "check1") | .status')
-              if [[ "$check1" == "completed" ]]; then
-                echo "Check has completed"
-                break
-              elif [[ "$check1" == "in_progress" || "$check1" == "queued" ]]; then
-                echo 'Check is still in progress, sleeping for 60 seconds...'
-                sleep 60
-              else
-                echo 'Check did not pass'
-                exit 1
-              fi
-            done
-
             git push origin HEAD
           else
             echo "No changes"
