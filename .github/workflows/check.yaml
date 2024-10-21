@@ -1,0 +1,25 @@
+name: Status Check
+on:
+  push:
+    branches:
+      - '**'
+      - '!main'
+
+jobs:
+  check1:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: success test1
+        run: |
+          sleep 20
+          exit 1
+
+  check2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: success test2
+        run: |
+          sleep 10
+          exit 0
