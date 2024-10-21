@@ -1,14 +1,18 @@
 name: Status Check
+on:
+  push:
+    branches:
+      - 'develop'
 
 jobs:
   check1:
     runs-on: ubuntu-latest
 
     steps:
-      - name: slow test1
+      - name: success test1
         run: |
           sleep 20
-          exit 0
+          exit 1
 
   check2:
     runs-on: ubuntu-latest
