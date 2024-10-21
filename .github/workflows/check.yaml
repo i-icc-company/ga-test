@@ -12,7 +12,7 @@ jobs:
       - name: success test1
         run: |
           sleep 20
-          exit 1
+          exit 0
 
   check2:
     runs-on: ubuntu-latest
