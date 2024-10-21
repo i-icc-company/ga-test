@@ -11,19 +11,6 @@ on:
       - 'gen/**'
 
 jobs:
-  check1:
-    runs-on: ubuntu-latest
-    steps:
-      - name: dummy test1
-        run: exit 0
-
-  check2:
-    runs-on: ubuntu-latest
-    steps:
-      - name: dummy test2
-        run: exit 0
-    
-
   kustomize_build:
     runs-on: ubuntu-latest
     steps:
