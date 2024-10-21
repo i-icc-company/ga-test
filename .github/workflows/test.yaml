@@ -55,16 +55,18 @@ jobs:
             git commit -m "edit from ga"
 
             while true; do
-              check_status=$(curl --location --request GET 'https://api.github.com/repos/i-icc-company/ga-test/commits/develop/status' \
-              --header 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' | jq '.state')
-              if [[ "$check_status" == '"success"' ]]; then
-                echo "Checks have passed"
+              check_runs=$(curl --location --request GET 'https://api.github.com/repos/i-icc-company/ga-test/commits/develop/check-runs' \
+              --header 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
+              --header 'Accept: application/vnd.github.v3+json')
+              check1=$(echo $check_runs | jq -r '.check_runs[] | select(.name == "check1") | .status')
+              if [[ "$check1" == "completed" ]]; then
+                echo "Check has completed"
                 break
-              elif [[ "$check_status" == '"pending"' ]]; then
-                echo 'Some checks are still pending, sleeping for 20 seconds...'
-                sleep 20
+              elif [[ "$check1" == "in_progress" || "$check1" == "queued" ]]; then
+                echo 'Check is still in progress, sleeping for 60 seconds...'
+                sleep 60
               else
-                echo 'Some checks did not pass'
+                echo 'Check did not pass'
                 exit 1
               fi
             done
