@@ -53,7 +53,23 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add .
             git commit -m "edit from ga"
-            git push -f origin HEAD
+
+            while true; do
+              check_status=$(curl --location --request GET 'https://api.github.com/repos/i-icc-company/ga-test/commits/develop/status' \
+              --header 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' | jq '.state')
+              if [[ "$check_status" == '"success"' ]]; then
+                echo "Checks have passed"
+                break
+              elif [[ "$check_status" == '"pending"' ]]; then
+                echo 'Some checks are still pending, sleeping for 20 seconds...'
+                sleep 20
+              else
+                echo 'Some checks did not pass'
+                exit 1
+              fi
+            done
+
+            git push origin HEAD
           else
             echo "No changes"
           fi
